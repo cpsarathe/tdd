@@ -1,9 +1,13 @@
 package com.cp.practice;
+
 import org.junit.jupiter.api.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -11,6 +15,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("Book Store Under Test")
 class BookStoreTest {
     private BookStore bookStore;
+    private Book awsCertified;
+    private Book springInAction;
+    private Book effectiveJava;
 
     @Test
     @Disabled
@@ -20,6 +27,15 @@ class BookStoreTest {
 
     @BeforeEach
     public void setup(){
+        awsCertified = new Book("AWS Certified Solutions Architect" ,
+                LocalDate.of(2015, 02, 20)
+                 , "CP" , new BigDecimal("112"));
+        springInAction = new Book("Spring In Action" ,
+                LocalDate.of(2014, 07, 11)
+                , "Amol", new BigDecimal("97")) ;
+        effectiveJava = new Book("Effective Java 2nd Edition" ,
+                LocalDate.of(2011, 01, 21)
+                , "Manjit" , new BigDecimal("108.99"));
         bookStore = new BookStore();
     }
 
@@ -32,10 +48,10 @@ class BookStoreTest {
     @Test
     @DisplayName("Add 2 Books to Book Store")
     void shouldContain2BookWhen2BooksAdded(){
-        bookStore.add("Effective Java" , "AWS Certified Solutions Architect");
-        List<String> books = bookStore.books();
-        assertTrue(books.contains("Effective Java") , ()-> "Effective Java should exist in book store");
-        assertTrue(books.contains("AWS Certified Solutions Architect") , ()-> "AWS Certified Solutions Architect should exist in bookstore");
+        bookStore.add(effectiveJava,springInAction);
+        List<Book> books = bookStore.books();
+        assertTrue(books.contains(effectiveJava) , ()-> "Effective Java should exist in book store");
+        assertTrue(books.contains(springInAction) , ()-> "AWS Certified Solutions Architect should exist in bookstore");
         assertTrue(books.size() == 2 , () -> "Book store do not have 2 books in shelf");
     }
 
@@ -45,9 +61,39 @@ class BookStoreTest {
     @Test
     @DisplayName("Arrange Books By Name Lexicographically")
     void shouldArrangeBooksByNameAndOrder(){
-        bookStore.add("Effective Java" , "AWS Certified Solutions Architect" , "Spring In Action" , "How to Win Friends");
-        List<String> books = bookStore.arrange();
-        List<String> expected = Arrays.asList( "AWS Certified Solutions Architect" , "Effective Java", "Spring In Action" , "How to Win Friends").stream().sorted().collect(Collectors.toList());
-        assertEquals(expected,books);
+        bookStore.add(awsCertified,effectiveJava,springInAction);
+        Criteria<Book> criteria = new ArrangeByName();
+        List<Book> expected = new ArrayList<>();
+        expected.add(awsCertified);
+        expected.add(effectiveJava);
+        expected.add(springInAction);
+        List<Book> actual = bookStore.arrange(criteria);
+        assertEquals(expected,actual);
+    }
+
+    @Test
+    @DisplayName("Arrange Books By Published Date")
+    void shouldArrangeBooksByPublishedDate(){
+        bookStore.add(awsCertified,effectiveJava,springInAction);
+        Criteria<Book> criteria = new ArrangeByPublishedDate();
+        List<Book> expected = new ArrayList<>();
+        expected.add(effectiveJava);
+        expected.add(springInAction);
+        expected.add(awsCertified);
+        List<Book> actual = bookStore.arrange(criteria);
+        assertEquals(expected,actual);
+    }
+
+    @Test
+    @DisplayName("Arrange Books By Price")
+    void shouldArrangeBooksByPrice(){
+        bookStore.add(awsCertified,effectiveJava,springInAction);
+        Criteria<Book> criteria = new ArrangeByPrice();
+        List<Book> expected = new ArrayList<>();
+        expected.add(springInAction);
+        expected.add(effectiveJava);
+        expected.add(awsCertified);
+        List<Book> actual = bookStore.arrange(criteria);
+        assertEquals(expected,actual);
     }
 }

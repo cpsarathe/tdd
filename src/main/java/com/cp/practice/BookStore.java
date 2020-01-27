@@ -6,20 +6,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BookStore {
-    private List<String> books = new ArrayList<>();
+    private List<Book> books = new ArrayList<>();
 
-    public List<String> books() {
+    public List<Book> books() {
         return this.books;
     }
 
-    public void add(String bookName){
-        this.books.add(bookName);
+    public void add(Book book){
+        this.books.add(book);
     }
-    public void add(String... bookName) {
-        Arrays.stream(bookName).forEach(book->books.add(book));
+    public void add(Book... books) {
+        Arrays.stream(books).forEach(book->this.books.add(book));
     }
-
-    public List<String> arrange() {
-        return this.books.stream().sorted().collect(Collectors.toList());
+    public List<Book> arrange(Criteria<Book> criteria) {
+        return criteria.arrange(this.books);
     }
 }
